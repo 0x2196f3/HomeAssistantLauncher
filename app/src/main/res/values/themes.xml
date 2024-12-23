@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.HomeAssistantLauncher" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Base.Theme.HomeAssistantLauncher" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimary</item>
+        <item name="colorAccent">@color/ColorText</item>
+    </style>
+</resources>

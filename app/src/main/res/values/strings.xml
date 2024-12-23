@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name" translatable="true">HomeAssistantLauncher</string>
+    <string name="settings" translatable="true">Settings</string>
+    <string name="apps" translatable="true">Apps</string>
+    <string name="save" translatable="true">Save</string>
+    <string name="clear_cookies" translatable="true">Clear Cookies</string>
+    <string name="url_hint" translatable="true">Enter a URL pre Line (e.g., https://demo.home-assistant.io)</string>
+</resources>
