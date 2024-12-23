@@ -26,6 +26,14 @@ HomeAssistantLauncher is an Android launcher app designed specifically for use o
 
 ## Installation
 
+
 1. Download the APK from the releases section.
 2. Enable installation from unknown sources in your device settings.
 3. Install the APK and launch the app.
+4. Go to your device's settings and set HomeAssistantLauncher as the default launcher app.
+5. Launch HomeAssistantLauncher to start using it.
+
+## Known Issues
+
+- **Unable to Clear Cookies**: Currently, there is an issue with clearing cookies within the app. To clear cookies, please use the Android settings to clear the app data.
+
