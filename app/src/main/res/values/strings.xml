@@ -4,5 +4,32 @@
     <string name="apps" translatable="true">Apps</string>
     <string name="save" translatable="true">Save</string>
     <string name="clear_cookies" translatable="true">Clear Cookies</string>
-    <string name="url_hint" translatable="true">Enter a URL pre Line (e.g., https://demo.home-assistant.io)</string>
+    <string name="url_hint" translatable="true">Enter a URL per Line (e.g., https://demo.home-assistant.io)</string>
+    <string name="switch_to_main_delay" translatable="true">Switch to Main Page Delay</string>
+
+    <string-array name="switch_delay_entries">
+        <item>Never</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
+        <item>2 minutes</item>
+        <item>5 minutes</item>
+        <item>10 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>24 hours</item>
+    </string-array>
+
+    <integer-array name="switch_delay_values">
+        <item>0</item>
+        <item>30</item>
+        <item>60</item>
+        <item>120</item>
+        <item>300</item>
+        <item>600</item>
+        <item>1800</item>
+        <item>3600</item>
+        <item>10800</item>
+        <item>86400</item>
+    </integer-array>
 </resources>

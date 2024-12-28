@@ -9,11 +9,14 @@ import android.os.Looper
 import android.view.MotionEvent
 import android.view.WindowManager
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.preference.PreferenceManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import kotlin.text.toLong
 
 
 class MainActivity : AppCompatActivity() {
@@ -27,6 +30,8 @@ class MainActivity : AppCompatActivity() {
 
     private var pendingRunnable: Runnable? = null
     private val handler = Handler(Looper.getMainLooper())
+    private var idleTimeout = 0L
+    private var latestTouch = 0L
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,12 +53,15 @@ class MainActivity : AppCompatActivity() {
         val urlsString = sharedPreferences.getString("urls", "") ?: ""
         val urls = urlsString.lines().filter { it.isNotBlank() }
 
+        idleTimeout = sharedPreferences.getInt("switch_delay", 0).toLong() * 1000L
+
         for (url in urls) {
             addTab(TabFragment(url))
         }
 
         addTab(SettingsFragment())
         addTab(AppsFragment())
+
     }
 
     private fun addTab(fragment: Fragment) {
@@ -69,6 +77,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (idleTimeout > 0 && System.currentTimeMillis() - latestTouch > idleTimeout) {
+            viewPager.setCurrentItem(0, false)
+        }
+    }
+
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         if (ev == null) return super.dispatchTouchEvent(null)
         if (ev.pointerCount >= FINGER_COUNT && !viewPager.isUserInputEnabled) {
@@ -77,14 +92,17 @@ class MainActivity : AppCompatActivity() {
             viewPager.setCurrentItem(viewPager.currentItem, true)
             startDelayedTask()
         }
+        latestTouch = System.currentTimeMillis()
         return super.dispatchTouchEvent(ev)
     }
+
 
     private fun startDelayedTask() {
         pendingRunnable?.let { handler.removeCallbacks(it) }
 
         pendingRunnable = Runnable {
             viewPager.setUserInputEnabled(false)
+            pendingRunnable = null
         }
         handler.postDelayed(pendingRunnable!!, 300)
     }

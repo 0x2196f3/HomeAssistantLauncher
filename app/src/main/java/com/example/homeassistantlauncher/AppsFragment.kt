@@ -1,13 +1,16 @@
 package com.example.homeassistantlauncher
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -36,45 +39,50 @@ class AppsFragment : Fragment() {
 
         recyclerViewApps = view.findViewById(R.id.recycler_view_apps)
         recyclerViewApps.layoutManager = GridLayoutManager(requireContext(), 4)
-        appAdapter = AppAdapter(emptyList()) { packageName ->
+        appAdapter = AppAdapter(emptyList(), { packageName ->
             val launchIntent = requireActivity().packageManager.getLaunchIntentForPackage(packageName)
             if (launchIntent != null) {
                 startActivity(launchIntent)
             }
-        }
+        }, { packageName ->
+            val intent = Intent(Intent.ACTION_DELETE)
+            intent.data = Uri.parse("package:${packageName}")
+            startActivity(intent)
+            loadApps()
+        })
         recyclerViewApps.adapter = appAdapter
 
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener {
-            lifecycleScope.launch {
-                val appData = loadAppsInBackground()
-                withContext(Dispatchers.Main) {
-                    appAdapter.appData = appData
-                    appAdapter.notifyDataSetChanged()
-                    swipeRefreshLayout.isRefreshing = false
-                }
-            }
+            loadApps()
         }
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.QUERY_ALL_PACKAGES) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(android.Manifest.permission.QUERY_ALL_PACKAGES), 123)
+            requestPermissions(arrayOf(android.Manifest.permission.QUERY_ALL_PACKAGES, android.Manifest.permission.DELETE_PACKAGES), 123)
         } else {
-            lifecycleScope.launch {
-                val appData = loadAppsInBackground()
-                withContext(Dispatchers.Main) {
-                    appAdapter.appData = appData
-                    appAdapter.notifyDataSetChanged()
-                }
-            }
+            loadApps()
         }
 
         return view
     }
 
     @SuppressLint("NotifyDataSetChanged")
+    private fun loadApps() {
+        lifecycleScope.launch {
+            val appData = loadAppsInBackground()
+            appAdapter.appData = appData
+            withContext(Dispatchers.Main) {
+                appAdapter.notifyDataSetChanged()
+                swipeRefreshLayout.isRefreshing = false
+            }
+
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     @Deprecated("Deprecated in Java")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == 123) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.size >= 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 lifecycleScope.launch {
                     val appData = loadAppsInBackground()
                     withContext(Dispatchers.Main) {
@@ -111,12 +119,17 @@ class AppsFragment : Fragment() {
 
 data class AppData(val name: String, val icon: Drawable, val packageName: String)
 
-class AppAdapter(var appData: List<AppData>, private val onAppClick: (String) -> Unit) :
+class AppAdapter(var appData: List<AppData>, private val onAppClick: (String) -> Unit, private val onAppUninstall: (String) -> Unit) :
     RecyclerView.Adapter<AppAdapter.AppViewHolder>() {
+
+    private var isUninstallMode = false
+
 
     class AppViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val iconView: ImageView = itemView.findViewById(R.id.app_icon)
         val nameView: TextView = itemView.findViewById(R.id.app_name)
+        val uninstallIcon: ImageView = itemView.findViewById(R.id.uninstall_icon)
+        val appItemLayout: LinearLayout = itemView.findViewById(R.id.app_item_layout)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
@@ -129,7 +142,41 @@ class AppAdapter(var appData: List<AppData>, private val onAppClick: (String) ->
         val app = appData[position]
         holder.iconView.setImageDrawable(app.icon)
         holder.nameView.text = app.name
-        holder.itemView.setOnClickListener { onAppClick(app.packageName) }
+        holder.itemView.setOnClickListener {
+            if (isUninstallMode) {
+                setUninstallMode(false)
+            } else {
+                onAppClick(app.packageName)
+            }
+        }
+
+        holder.itemView.setOnLongClickListener {
+            setUninstallMode(true)
+            true
+        }
+
+        holder.uninstallIcon.setOnClickListener {
+            onAppUninstall(app.packageName)
+            setUninstallMode(false)
+        }
+
+        if (isUninstallMode) {
+            holder.uninstallIcon.visibility = View.VISIBLE
+        } else {
+            holder.uninstallIcon.visibility = View.GONE
+        }
+
+        holder.appItemLayout.setOnClickListener {
+            if (isUninstallMode) {
+                setUninstallMode(false)
+            }
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun setUninstallMode(isUninstallMode: Boolean) {
+        this.isUninstallMode = isUninstallMode
+        notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int = appData.size

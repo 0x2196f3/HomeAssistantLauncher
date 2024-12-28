@@ -1,7 +1,9 @@
 package com.example.homeassistantlauncher
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
+import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -29,6 +31,7 @@ class TabFragment(private val url: String) : Fragment() {
 
         webView = view.findViewById(R.id.web_view)
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
+
 
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
