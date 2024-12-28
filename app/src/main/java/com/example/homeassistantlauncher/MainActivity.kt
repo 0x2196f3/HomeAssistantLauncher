@@ -8,15 +8,11 @@ import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
 import android.view.WindowManager
-import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.preference.PreferenceManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import kotlin.text.toLong
 
 
 class MainActivity : AppCompatActivity() {

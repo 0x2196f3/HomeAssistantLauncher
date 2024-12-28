@@ -16,13 +16,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
-import androidx.compose.ui.geometry.isEmpty
-import androidx.compose.ui.semantics.text
 import androidx.fragment.app.Fragment
-import androidx.preference.PreferenceManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import kotlin.text.isNotEmpty
-import kotlin.text.trim
 
 
 class SettingsFragment : Fragment() {
