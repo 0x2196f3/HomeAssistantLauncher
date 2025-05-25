@@ -142,7 +142,7 @@ class AppAdapter(var appData: List<AppData>, private val onAppClick: (String) ->
         val app = appData[position]
         holder.iconView.setImageDrawable(app.icon)
         holder.nameView.text = app.name
-        holder.itemView.setOnClickListener {
+        holder.appItemLayout.setOnClickListener {
             if (isUninstallMode) {
                 setUninstallMode(false)
             } else {
@@ -150,7 +150,8 @@ class AppAdapter(var appData: List<AppData>, private val onAppClick: (String) ->
             }
         }
 
-        holder.itemView.setOnLongClickListener {
+        holder.appItemLayout.setOnLongClickListener {
+
             setUninstallMode(true)
             true
         }
@@ -166,11 +167,6 @@ class AppAdapter(var appData: List<AppData>, private val onAppClick: (String) ->
             holder.uninstallIcon.visibility = View.GONE
         }
 
-        holder.appItemLayout.setOnClickListener {
-            if (isUninstallMode) {
-                setUninstallMode(false)
-            }
-        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
