@@ -8,7 +8,7 @@ HomeAssistantLauncher is an Android launcher app designed specifically for use o
 - **Multi-Webpage Support**: Navigate between multiple webpages with ease.
 - **Gesture Navigation**: Use a four-finger swipe from left to right to switch between webpages.
 - **Settings Configuration**: Easily configure the webpages you want to access in the settings menu.
-- **App Access**: Slide to the last page (on the right) to open other installed apps.
+- **App Access**: Slide to the left to open other installed apps.
 
 ## Screenshots
 
@@ -24,16 +24,6 @@ HomeAssistantLauncher is an Android launcher app designed specifically for use o
 2. **Configuring Webpages**: Go to the settings menu to add or modify the webpages you want to access.
 3. **Accessing Other Apps**: Slide to the last page on the right to open other applications installed on your device.
 
-## Installation
-
-
-1. Download the APK from the releases section.
-2. Enable installation from unknown sources in your device settings.
-3. Install the APK and launch the app.
-4. Go to your device's settings and set HomeAssistantLauncher as the default launcher app.
-5. Launch HomeAssistantLauncher to start using it.
-
 ## Known Issues
 
-- **Unable to Clear Cookies**: Currently, there is an issue with clearing cookies within the app. To clear cookies, please use the Android settings to clear the app data.
-
+- **WebView and SwipeRefreshLayout Conflict**: There is an inherent conflict in touch event handling when a scrollable `WebView` is placed inside a `SwipeRefreshLayout`. This can make the swipe-to-refresh gesture difficult or impossible to trigger reliably when the user's swipe starts on the `WebView`. This is a common challenge in Android development with this component combination and a robust solution is not currently implemented.

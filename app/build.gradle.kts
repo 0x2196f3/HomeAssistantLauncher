@@ -6,14 +6,14 @@ plugins {
 
 android {
     namespace = "com.example.homeassistantlauncher"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.homeassistantlauncher"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "1.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -21,6 +21,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -38,6 +39,7 @@ android {
         compose = true
         viewBinding = true
     }
+    buildToolsVersion = "36.0.0"
 }
 
 dependencies {
@@ -58,6 +60,7 @@ dependencies {
     implementation(libs.androidx.preference)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.tools.core)
+    implementation(libs.material.v1100)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

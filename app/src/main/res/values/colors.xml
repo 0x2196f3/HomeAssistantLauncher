@@ -1,9 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ColorPrimary">#18BCF2</color>
-    <color name="ColorPrimaryDark">#0B9CCC</color>
+    <!-- App Brand Colors -->
+    <color name="md_blue_500">#2196F3</color>
+    <color name="md_blue_700">#1976D2</color>
+    <color name="md_blue_300">#64B5F6</color> <!-- Lighter blue for accents or secondary -->
 
-    <color name="ColorText">#FFFFFF</color>
-    <color name="ColorTextDark">#E6E6E6</color>
+    <color name="md_amber_500">#FFC107</color>
+    <color name="md_amber_700">#FFA000</color>
+
+    <!-- Light Theme Specific UI Colors -->
+    <color name="light_colorPrimary">@color/md_blue_500</color>
+    <color name="light_colorPrimaryVariant">@color/md_blue_700</color>
+    <color name="light_colorOnPrimary">#FFFFFF</color>
+
+    <color name="light_colorSecondary">@color/md_amber_500</color>
+    <color name="light_colorSecondaryVariant">@color/md_amber_700</color>
+    <color name="light_colorOnSecondary">#000000</color>
+
+    <color name="light_colorBackground">#F5F5F5</color> <!-- Off-white/Light Grey -->
+    <color name="light_colorSurface">#FFFFFF</color>   <!-- White for cards, dialogs -->
+    <color name="light_colorError">#D32F2F</color>     <!-- Material Red 700 -->
+
+    <color name="light_colorOnBackground">#000000</color>
+    <color name="light_colorOnSurface">#000000</color>
+    <color name="light_colorOnError">#FFFFFF</color>
+
+    <!-- Dark Theme Specific UI Colors -->
+    <color name="dark_colorPrimary">@color/md_blue_300</color> <!-- Lighter blue for dark theme primary -->
+    <color name="dark_colorPrimaryVariant">@color/md_blue_500</color> <!-- Slightly darker than dark_colorPrimary -->
+    <color name="dark_colorOnPrimary">#000000</color>
+
+    <color name="dark_colorSecondary">@color/md_amber_700</color> <!-- Lighter Amber for dark theme -->
+    <color name="dark_colorOnSecondary">#000000</color>
+
+    <color name="dark_colorBackground">#121212</color> <!-- Standard dark background -->
+    <color name="dark_colorSurface">#1E1E1E</color>    <!-- Slightly lighter dark for surfaces -->
+    <color name="dark_colorError">#EF9A9A</color>      <!-- Lighter Red for dark theme -->
+
+    <color name="dark_colorOnBackground">#FFFFFF</color>
+    <color name="dark_colorOnSurface">#FFFFFF</color>
+    <color name="dark_colorOnError">#000000</color>
+
 
 </resources>

@@ -10,12 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
-        app:titleTextColor="?attr/colorAccent"
+        app:titleTextColor="?attr/colorOnPrimary"
         app:title="@string/apps" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
-        android:layout_margin="16dp"
+        android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

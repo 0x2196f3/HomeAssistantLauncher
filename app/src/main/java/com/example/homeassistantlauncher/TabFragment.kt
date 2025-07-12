@@ -8,60 +8,93 @@ import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.homeassistantlauncher.databinding.FragmentTabBinding
 
 class TabFragment(private val url: String) : Fragment() {
 
-    private lateinit var webView: WebView
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private var _binding: FragmentTabBinding? = null
+    private val binding get() = _binding!!
 
-    @SuppressLint("ClickableViewAccessibility", "SetJavaScriptEnabled")
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_tab, container, false)
+    ): View {
+        _binding = FragmentTabBinding.inflate(inflater, container, false)
+        val view = binding.root
 
-        webView = view.findViewById(R.id.web_view)
-        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
+        binding.webView.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
 
+            cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
 
-        webView.settings.javaScriptEnabled = true
-        webView.settings.domStorageEnabled = true
-        webView.settings.databaseEnabled = true
-        webView.settings.cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
-        webView.settings.builtInZoomControls = false
-        webView.settings.displayZoomControls = false
+            builtInZoomControls = false
+            displayZoomControls = false
+        }
 
         val cookieManager = CookieManager.getInstance()
         cookieManager.setAcceptCookie(true)
 
-        val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipeRefreshLayout)
+        binding.webView.webViewClient = object : WebViewClient() {
+            override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                binding.swipeRefreshLayout.isRefreshing = true
+            }
 
-        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                binding.swipeRefreshLayout.isRefreshing = false
+            }
+
             override fun onReceivedError(
                 view: WebView,
                 request: WebResourceRequest,
                 error: WebResourceError
             ) {
+                super.onReceivedError(view, request, error)
+                if (request.isForMainFrame) {
+                    Toast.makeText(context, "Error: ${error.description}", Toast.LENGTH_LONG).show()
+                }
+                binding.swipeRefreshLayout.isRefreshing = false
             }
         }
 
-        swipeRefreshLayout.setOnRefreshListener {
-            webView.loadUrl(url)
-            swipeRefreshLayout.isRefreshing = false
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            binding.webView.reload()
         }
 
-        webView.setOnTouchListener { _, _ ->
-            swipeRefreshLayout.isEnabled = !webView.canScrollVertically(-1)
-            false
+        binding.webView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
+            binding.swipeRefreshLayout.isEnabled = scrollY == 0
         }
 
-        webView.loadUrl(url)
+        binding.webView.loadUrl(url)
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        _binding?.let {
+            it.swipeRefreshLayout.isEnabled = it.webView.scrollY == 0
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding?.webView?.let { webView ->
+            (webView.parent as? ViewGroup)?.removeView(webView)
+
+            webView.stopLoading()
+
+            webView.webViewClient = WebViewClient()
+            webView.destroy()
+        }
+        _binding = null
     }
 }

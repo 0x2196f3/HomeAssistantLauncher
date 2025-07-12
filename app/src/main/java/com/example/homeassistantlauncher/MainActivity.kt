@@ -1,106 +1,131 @@
 package com.example.homeassistantlauncher
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.MotionEvent
-import android.view.WindowManager
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
-
+import com.example.homeassistantlauncher.databinding.ActivityMainBinding
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        private const val FINGER_COUNT = 4
+        private const val REQUIRED_FINGER_COUNT_FOR_INPUT_ENABLE = 4
+        private const val INPUT_DISABLE_DELAY_MS = 300L
+        private const val DEFAULT_STARTING_TAB_INDEX = 1
     }
 
-    private lateinit var viewPager: ViewPager2
-    private lateinit var adapter: ViewPagerAdapter
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var viewPagerAdapter: ViewPagerAdapter
+    private lateinit var appSettings: AppSettings
 
-    private var pendingRunnable: Runnable? = null
-    private val handler = Handler(Looper.getMainLooper())
-    private var idleTimeout = 0L
-    private var latestTouch = 0L
+    private var disableUserInputJob: Job? = null
+    private var idleTimeoutMillis = 0L
+    private var lastTouchTimestampMillis = 0L
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        appSettings = AppSettings(this)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        configureFullScreenMode()
 
-        @Suppress("DEPRECATION") window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
-
-        setContentView(R.layout.activity_main)
-        viewPager = findViewById(R.id.view_pager)
-        viewPager.setUserInputEnabled(false)
-
-        adapter = ViewPagerAdapter(this)
-        viewPager.adapter = adapter
-
-        val sharedPreferences = getSharedPreferences("settings", Context.MODE_PRIVATE)
-        val urlsString = sharedPreferences.getString("urls", "") ?: ""
-        val urls = urlsString.lines().filter { it.isNotBlank() }
-
-        idleTimeout = sharedPreferences.getInt("switch_delay", 0).toLong() * 1000L
-
-        for (url in urls) {
-            addTab(TabFragment(url))
-        }
-
-        addTab(SettingsFragment())
-        addTab(AppsFragment())
-
+        setupViewPager()
+        loadAndApplySettings()
+        setupSystemBackButton()
     }
 
-    private fun addTab(fragment: Fragment) {
-        adapter.addFragment(fragment)
-        adapter.notifyItemInserted(adapter.itemCount - 1)
+    private fun configureFullScreenMode() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+        controller.hide(WindowInsetsCompat.Type.systemBars())
+        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
     }
 
-    @Deprecated("Deprecated in Java")
-    @SuppressLint("MissingSuperCall")
-    override fun onBackPressed() {
-        if (viewPager.currentItem > 0) {
-            viewPager.setCurrentItem(viewPager.currentItem - 1, true)
+    private fun setupViewPager() {
+        viewPagerAdapter = ViewPagerAdapter(this)
+        binding.viewPager.adapter = viewPagerAdapter
+        binding.viewPager.setUserInputEnabled(false)
+    }
+
+    private fun loadAndApplySettings() {
+        val urls = appSettings.getUrls()
+        idleTimeoutMillis = appSettings.getSwitchDelay().toLong() * 1000L
+
+        viewPagerAdapter.addFragment(AppsFragment())
+        urls.forEach { url ->
+            viewPagerAdapter.addFragment(TabFragment(url))
         }
+        viewPagerAdapter.addFragment(SettingsFragment())
+
+        if (viewPagerAdapter.itemCount > DEFAULT_STARTING_TAB_INDEX) {
+            binding.viewPager.setCurrentItem(DEFAULT_STARTING_TAB_INDEX, false)
+        } else if (viewPagerAdapter.itemCount > 0) {
+            binding.viewPager.setCurrentItem(0, false)
+        }
+    }
+
+    private fun setupSystemBackButton() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.viewPager.currentItem > DEFAULT_STARTING_TAB_INDEX) {
+                    binding.viewPager.setCurrentItem(binding.viewPager.currentItem - 1, true)
+                }
+            }
+        })
     }
 
     override fun onResume() {
         super.onResume()
-        if (idleTimeout > 0 && System.currentTimeMillis() - latestTouch > idleTimeout) {
-            viewPager.setCurrentItem(0, false)
+        if (idleTimeoutMillis > 0 && !binding.viewPager.isUserInputEnabled && System.currentTimeMillis() - lastTouchTimestampMillis > idleTimeoutMillis
+        ) {
+            if (viewPagerAdapter.itemCount > DEFAULT_STARTING_TAB_INDEX) {
+                binding.viewPager.setCurrentItem(DEFAULT_STARTING_TAB_INDEX, false)
+            }
         }
+        lastTouchTimestampMillis = System.currentTimeMillis()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        disableUserInputJob?.cancel()
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        if (ev == null) return super.dispatchTouchEvent(null)
-        if (ev.pointerCount >= FINGER_COUNT && !viewPager.isUserInputEnabled) {
-            viewPager.setUserInputEnabled(true)
-        } else if (viewPager.isUserInputEnabled && ev.action == MotionEvent.ACTION_UP && ev.pointerCount < FINGER_COUNT) {
-            viewPager.setCurrentItem(viewPager.currentItem, true)
-            startDelayedTask()
+        ev ?: return super.dispatchTouchEvent(null)
+
+        val currentPointerCount = ev.pointerCount
+        val isUserInputCurrentlyEnabled = binding.viewPager.isUserInputEnabled
+
+        if (currentPointerCount >= REQUIRED_FINGER_COUNT_FOR_INPUT_ENABLE && !isUserInputCurrentlyEnabled) {
+            binding.viewPager.setUserInputEnabled(true)
+            disableUserInputJob?.cancel()
+        } else if (isUserInputCurrentlyEnabled && ev.actionMasked == MotionEvent.ACTION_UP) {
+            scheduleDisableUserInput()
         }
-        latestTouch = System.currentTimeMillis()
+
+        lastTouchTimestampMillis = System.currentTimeMillis()
         return super.dispatchTouchEvent(ev)
     }
 
-
-    private fun startDelayedTask() {
-        pendingRunnable?.let { handler.removeCallbacks(it) }
-
-        pendingRunnable = Runnable {
-            viewPager.setUserInputEnabled(false)
-            pendingRunnable = null
+    private fun scheduleDisableUserInput() {
+        disableUserInputJob?.cancel()
+        disableUserInputJob = lifecycleScope.launch {
+            delay(INPUT_DISABLE_DELAY_MS)
+            binding.viewPager.setUserInputEnabled(false)
         }
-        handler.postDelayed(pendingRunnable!!, 300)
     }
 }
 
@@ -115,5 +140,7 @@ class ViewPagerAdapter(fragmentActivity: FragmentActivity) :
 
     fun addFragment(fragment: Fragment) {
         fragments.add(fragment)
+        notifyItemInserted(fragments.size - 1)
     }
 }
+

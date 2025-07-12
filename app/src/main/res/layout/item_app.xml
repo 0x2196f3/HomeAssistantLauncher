@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="8dp"
+    android:layout_margin="8dp"
     android:id="@+id/app_item_layout"
     tools:ignore="UseCompoundDrawables">
 
@@ -15,6 +15,7 @@
 
         <ImageView
             android:id="@+id/app_icon"
+            android:contentDescription="@string/app_icon"
             android:padding="8dp"
             android:layout_width="56dp"
             android:layout_height="56dp"
@@ -25,7 +26,8 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="top|end"
-            android:src="@drawable/ic_close"
+            android:contentDescription="@string/uninstall_icon"
+            android:src="@drawable/ic_delete"
             android:visibility="gone" />
 
     </FrameLayout>
