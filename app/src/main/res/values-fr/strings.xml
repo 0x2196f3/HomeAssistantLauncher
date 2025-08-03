@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">HomeAssistantLauncher</string>
+    <string name="settings">Paramètres</string>
+    <string name="apps">Applications</string>
+    <string name="save">Enregistrer</string>
+    <string name="clear_cookies">Effacer les cookies</string>
+    <string name="url_hint">Entrez une URL par ligne (ex: https://demo.home-assistant.io)</string>
+    <string name="switch_to_main_delay">Délai de retour à la page principale</string>
+    <string name="switch_delay">Délai de basculement</string>
+    <string name="urls_saved_successfully">URL enregistrée avec succès</string>
+    <string name="error_saving_url">Erreur lors de l\'enregistrement de l\'URL</string>
+    <string name="error_clearing_cookies">Erreur lors de la suppression des cookies</string>
+    <string name="settings_saved_successfully">Paramètres enregistrés avec succès</string>
+    <string name="error_saving_settings">Erreur lors de l\'enregistrement des paramètres</string>
+    <string name="invalid_urls_on_lines">URL invalides aux lignes</string>
+    <string name="cookies_cleared_successfully">Cookies effacés avec succès</string>
+    <string name="error_restarting_app">Erreur lors du redémarrage de l\'application</string>
+    <string name="launch_error">Échec du lancement de l\'application</string>
+    <string name="uninstall_error">Échec de la désinstallation de l\'application</string>
+    <string name="permission_denied">Permission refusée</string>
+    <string name="app_icon">icône_application</string>
+    <string name="uninstall_icon">icône_désinstallation</string>
+    <string name="add_new_url">Ajouter une nouvelle URL</string>
+    <string name="remove_url">Supprimer l\'URL</string>
+    <string name="rapid_crash_message">L\'application se ferme en raison d\'erreurs répétées.</string>
+    <string name="duplicate_urls_found">URL en double trouvées. Veuillez supprimer les doublons et réessayer.</string>
+
+    <string-array name="switch_delay_entries">
+        <item>Jamais</item>
+        <item>30 secondes</item>
+        <item>1 minute</item>
+        <item>2 minutes</item>
+        <item>5 minutes</item>
+        <item>10 minutes</item>
+        <item>30 minutes</item>
+        <item>1 heure</item>
+        <item>3 heures</item>
+        <item>24 heures</item>
+    </string-array>
+</resources>

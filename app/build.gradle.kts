@@ -13,7 +13,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 4
-        versionName = "1.3"
+        versionName = "1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -60,7 +60,6 @@ dependencies {
     implementation(libs.androidx.preference)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.tools.core)
-    implementation(libs.material.v1100)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -15,10 +15,33 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.homeassistantlauncher.databinding.FragmentTabBinding
 
-class TabFragment(private val url: String) : Fragment() {
+class TabFragment() : Fragment(), FragmentOnBackPressed {
 
     private var _binding: FragmentTabBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var currentUrl: String
+
+    companion object {
+        private const val ARG_URL = "arg_url"
+
+        fun newInstance(url: String): TabFragment {
+            val fragment = TabFragment()
+            val args = Bundle()
+            args.putString(ARG_URL, url)
+            fragment.arguments = args
+            return fragment
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        if (::currentUrl.isInitialized.not()) {
+            currentUrl = savedInstanceState?.getString(ARG_URL) ?: arguments?.getString(ARG_URL)
+                ?: throw IllegalStateException("URL must be provided to TabFragment")
+        }
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreateView(
@@ -28,12 +51,14 @@ class TabFragment(private val url: String) : Fragment() {
         _binding = FragmentTabBinding.inflate(inflater, container, false)
         val view = binding.root
 
+        savedInstanceState?.getString(ARG_URL)?.let {
+            currentUrl = it
+        }
+
         binding.webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
-
             cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
-
             builtInZoomControls = false
             displayZoomControls = false
         }
@@ -73,9 +98,16 @@ class TabFragment(private val url: String) : Fragment() {
             binding.swipeRefreshLayout.isEnabled = scrollY == 0
         }
 
-        binding.webView.loadUrl(url)
+        binding.webView.loadUrl(currentUrl)
 
         return view
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (::currentUrl.isInitialized) {
+            outState.putString(ARG_URL, currentUrl)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -85,16 +117,35 @@ class TabFragment(private val url: String) : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        _binding?.webView?.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        _binding?.webView?.onPause()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+
         _binding?.webView?.let { webView ->
             (webView.parent as? ViewGroup)?.removeView(webView)
-
             webView.stopLoading()
-
-            webView.webViewClient = WebViewClient()
+            webView.webViewClient = WebViewClient() // Clear client to avoid leaks
             webView.destroy()
         }
         _binding = null
+    }
+
+    override fun onBackPressed(): Boolean {
+        if (_binding == null) return false
+        
+        if (binding.webView.canGoBack()) {
+            binding.webView.goBack()
+            return true
+        }
+        return false
     }
 }

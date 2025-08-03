@@ -18,9 +18,12 @@
     <string name="launch_error" translatable="true">Failed to launch app</string>
     <string name="uninstall_error" translatable="true">Failed to uninstall app</string>
     <string name="permission_denied" translatable="true">Permission denied</string>
-    <string name="app_icon">app_icon</string>
-    <string name="uninstall_icon">uninstall_icon</string>
-
+    <string name="app_icon" translatable="true">app_icon</string>
+    <string name="uninstall_icon" translatable="true">uninstall_icon</string>
+    <string name="add_new_url" translatable="true">Add New URL</string>
+    <string name="remove_url" translatable="true">Remove URL</string>"
+    <string name="rapid_crash_message" translatable="true">App is closing due to repeated errors.</string>
+    <string name="duplicate_urls_found" translatable="true">Duplicate URLs found. Please remove duplicates and try again.</string>
 
     <string-array name="switch_delay_entries">
         <item>Never</item>

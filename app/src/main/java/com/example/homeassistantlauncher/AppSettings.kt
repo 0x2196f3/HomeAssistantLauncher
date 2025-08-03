@@ -2,6 +2,8 @@ package com.example.homeassistantlauncher
 
 import android.content.Context
 import androidx.core.content.edit
+import kotlin.collections.map
+import kotlin.text.trim
 
 class AppSettings(context: Context) {
 
@@ -22,7 +24,7 @@ class AppSettings(context: Context) {
     }
 
     fun saveUrls(urls: List<String>) {
-        val urlsString = urls.joinToString(separator = "\n")
+        val urlsString = urls.map { it.trim() }.filter { it.isNotEmpty() }.joinToString(separator = "\n")
         sharedPreferences.edit {
             putString(KEY_URLS, urlsString)
         }

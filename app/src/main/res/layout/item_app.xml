@@ -27,7 +27,7 @@
             android:layout_height="24dp"
             android:layout_gravity="top|end"
             android:contentDescription="@string/uninstall_icon"
-            android:src="@drawable/ic_delete"
+            android:src="@drawable/ic_uninstall"
             android:visibility="gone" />
 
     </FrameLayout>

@@ -33,7 +33,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.homeassistantlauncher.databinding.FragmentAppsBinding
 
-class AppsFragment : Fragment() {
+class AppsFragment : Fragment(), FragmentOnBackPressed {
 
     private var _binding: FragmentAppsBinding? = null
     private val binding get() = _binding!!
@@ -60,7 +60,7 @@ class AppsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         uninstallAppLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             viewModel.loadInstalledApps()
-            appAdapter.setUninstallMode(false)
+            setUninstallModeInternal(false)
         }
     }
 
@@ -83,6 +83,10 @@ class AppsFragment : Fragment() {
         checkAndRequestPermissions()
     }
 
+    private fun setUninstallModeInternal(enabled: Boolean) {
+        appAdapter.setUninstallMode(enabled)
+    }
+
     override fun onResume() {
         super.onResume()
         viewModel.loadInstalledApps()
@@ -93,13 +97,13 @@ class AppsFragment : Fragment() {
         appAdapter = AppAdapter(
             onAppClick = { packageName, isUninstallMode ->
                 if (isUninstallMode) {
-                    appAdapter.setUninstallMode(false)
+                    setUninstallModeInternal(false)
                 } else {
                     launchApp(packageName)
                 }
             },
             onAppLongClick = { _ ->
-                appAdapter.setUninstallMode(!appAdapter.getUninstallMode())
+                setUninstallModeInternal(!appAdapter.getUninstallMode())
             },
             onAppUninstall = { packageName ->
                 requestUninstall(packageName)
@@ -113,7 +117,7 @@ class AppsFragment : Fragment() {
                     val childView = findChildViewUnder(event.x, event.y)
                     if (childView == null) {
                         if (appAdapter.getUninstallMode()) {
-                            appAdapter.setUninstallMode(false)
+                            setUninstallModeInternal(false)
                         }
                         return@setOnTouchListener true
                     }
@@ -126,7 +130,7 @@ class AppsFragment : Fragment() {
     private fun setupSwipeRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             checkAndRequestPermissions()
-            appAdapter.setUninstallMode(false)
+            setUninstallModeInternal(false)
         }
     }
 
@@ -134,7 +138,7 @@ class AppsFragment : Fragment() {
         viewModel.apps.observe(viewLifecycleOwner) { apps ->
             appAdapter.submitList(apps)
             if (apps.isEmpty() && appAdapter.getUninstallMode()) {
-                appAdapter.setUninstallMode(false)
+                setUninstallModeInternal(false)
             }
         }
 
@@ -145,7 +149,7 @@ class AppsFragment : Fragment() {
         viewModel.permissionDeniedError.observe(viewLifecycleOwner) { hasError ->
             if (hasError) {
                 Toast.makeText(requireContext(), getString(R.string.permission_denied), Toast.LENGTH_LONG).show()
-                appAdapter.setUninstallMode(false)
+                setUninstallModeInternal(false)
             }
         }
     }
@@ -188,7 +192,7 @@ class AppsFragment : Fragment() {
             uninstallAppLauncher.launch(intent)
         } catch (e: Exception) {
             Toast.makeText(requireContext(), getString(R.string.uninstall_error) + ": " + e.message, Toast.LENGTH_SHORT).show()
-            appAdapter.setUninstallMode(false)
+            setUninstallModeInternal(false)
         }
     }
 
@@ -197,6 +201,16 @@ class AppsFragment : Fragment() {
         super.onDestroyView()
         binding.recyclerViewApps.adapter = null
         _binding = null
+    }
+
+    override fun onBackPressed(): Boolean {
+        if (_binding == null) return false
+
+        if (appAdapter.getUninstallMode()) {
+            setUninstallModeInternal(false)
+            return true
+        }
+        return false
     }
 }
 
@@ -339,4 +353,3 @@ class AppsViewModel(application: Application) : AndroidViewModel(application) {
         _apps.value = emptyList()
     }
 }
-

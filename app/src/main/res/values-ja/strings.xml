@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">HomeAssistantLauncher</string>
+    <string name="settings">設定</string>
+    <string name="apps">アプリ</string>
+    <string name="save">保存</string>
+    <string name="clear_cookies">クッキーを消去</string>
+    <string name="url_hint">1行に1つのURLを入力 (例: https://demo.home-assistant.io)</string>
+    <string name="switch_to_main_delay">メインページへの切り替え遅延</string>
+    <string name="switch_delay">切り替え遅延</string>
+    <string name="urls_saved_successfully">URLを正常に保存しました</string>
+    <string name="error_saving_url">URLの保存中にエラーが発生しました</string>
+    <string name="error_clearing_cookies">クッキーの消去中にエラーが発生しました</string>
+    <string name="settings_saved_successfully">設定を正常に保存しました</string>
+    <string name="error_saving_settings">設定の保存中にエラーが発生しました</string>
+    <string name="invalid_urls_on_lines">無効なURLの行</string>
+    <string name="cookies_cleared_successfully">クッキーを正常に消去しました</string>
+    <string name="error_restarting_app">アプリの再起動中にエラーが発生しました</string>
+    <string name="launch_error">アプリの起動に失敗しました</string>
+    <string name="uninstall_error">アプリのアンインストールに失敗しました</string>
+    <string name="permission_denied">権限が拒否されました</string>
+    <string name="app_icon">アプリアイコン</string>
+    <string name="uninstall_icon">アンインストールアイコン</string>
+    <string name="add_new_url">新しいURLを追加</string>
+    <string name="remove_url">URLを削除</string>
+    <string name="rapid_crash_message">繰り返しエラーが発生したため、アプリを終了します。</string>
+    <string name="duplicate_urls_found">重複するURLが見つかりました。重複を削除して、もう一度お試しください。</string>
+
+    <string-array name="switch_delay_entries">
+        <item>なし</item>
+        <item>30秒</item>
+        <item>1分</item>
+        <item>2分</item>
+        <item>5分</item>
+        <item>10分</item>
+        <item>30分</item>
+        <item>1時間</item>
+        <item>3時間</item>
+        <item>24時間</item>
+    </string-array>
+</resources>

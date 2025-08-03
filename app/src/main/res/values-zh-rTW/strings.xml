@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">HomeAssistantLauncher</string>
+    <string name="settings">設定</string>
+    <string name="apps">應用程式</string>
+    <string name="save">儲存</string>
+    <string name="clear_cookies">清除Cookie</string>
+    <string name="url_hint">每行輸入一個URL (例如 https://demo.home-assistant.io)</string>
+    <string name="switch_to_main_delay">切換到主頁延遲</string>
+    <string name="switch_delay">切換延遲</string>
+    <string name="urls_saved_successfully">URL儲存成功</string>
+    <string name="error_saving_url">儲存URL時發生錯誤</string>
+    <string name="error_clearing_cookies">清除Cookie時發生錯誤</string>
+    <string name="settings_saved_successfully">設定儲存成功</string>
+    <string name="error_saving_settings">儲存設定時發生錯誤</string>
+    <string name="invalid_urls_on_lines">無效的URL行</string>
+    <string name="cookies_cleared_successfully">Cookie清除成功</string>
+    <string name="error_restarting_app">重新啟動應用程式時發生錯誤</string>
+    <string name="launch_error">啟動應用程式失敗</string>
+    <string name="uninstall_error">解除安裝應用程式失敗</string>
+    <string name="permission_denied">權限遭拒</string>
+    <string name="app_icon">應用程式圖示</string>
+    <string name="uninstall_icon">解除安裝圖示</string>
+    <string name="add_new_url">新增URL</string>
+    <string name="remove_url">移除URL</string>
+    <string name="rapid_crash_message">由於重複發生錯誤，應用程式正在關閉。</string>
+    <string name="duplicate_urls_found">發現重複的URL。請移除重複項並重試。</string>
+
+    <string-array name="switch_delay_entries">
+        <item>永不</item>
+        <item>30秒</item>
+        <item>1分鐘</item>
+        <item>2分鐘</item>
+        <item>5分鐘</item>
+        <item>10分鐘</item>
+        <item>30分鐘</item>
+        <item>1小時</item>
+        <item>3小時</item>
+        <item>24小時</item>
+    </string-array>
+</resources>

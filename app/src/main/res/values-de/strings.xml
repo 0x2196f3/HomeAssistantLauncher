@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">HomeAssistantLauncher</string>
+    <string name="settings">Einstellungen</string>
+    <string name="apps">Apps</string>
+    <string name="save">Speichern</string>
+    <string name="clear_cookies">Cookies löschen</string>
+    <string name="url_hint">Geben Sie eine URL pro Zeile ein (z.B. https://demo.home-assistant.io)</string>
+    <string name="switch_to_main_delay">Wechsel zur Hauptseite Verzögerung</string>
+    <string name="switch_delay">Wechselverzögerung</string>
+    <string name="urls_saved_successfully">URL erfolgreich gespeichert</string>
+    <string name="error_saving_url">Fehler beim Speichern der URL</string>
+    <string name="error_clearing_cookies">Fehler beim Löschen der Cookies</string>
+    <string name="settings_saved_successfully">Einstellungen erfolgreich gespeichert</string>
+    <string name="error_saving_settings">Fehler beim Speichern der Einstellungen</string>
+    <string name="invalid_urls_on_lines">Ungültige URLs in Zeilen</string>
+    <string name="cookies_cleared_successfully">Cookies erfolgreich gelöscht</string>
+    <string name="error_restarting_app">Fehler beim Neustarten der App</string>
+    <string name="launch_error">Fehler beim Starten der App</string>
+    <string name="uninstall_error">Fehler beim Deinstallieren der App</string>
+    <string name="permission_denied">Berechtigung verweigert</string>
+    <string name="app_icon">App-Symbol</string>
+    <string name="uninstall_icon">Deinstallationssymbol</string>
+    <string name="add_new_url">Neue URL hinzufügen</string>
+    <string name="remove_url">URL entfernen</string>
+    <string name="rapid_crash_message">App wird aufgrund wiederholter Fehler geschlossen.</string>
+    <string name="duplicate_urls_found">Doppelte URLs gefunden. Bitte entfernen Sie Duplikate und versuchen Sie es erneut.</string>
+
+    <string-array name="switch_delay_entries">
+        <item>Nie</item>
+        <item>30 Sekunden</item>
+        <item>1 Minute</item>
+        <item>2 Minuten</item>
+        <item>5 Minuten</item>
+        <item>10 Minuten</item>
+        <item>30 Minuten</item>
+        <item>1 Stunde</item>
+        <item>3 Stunden</item>
+        <item>24 Stunden</item>
+    </string-array>
+</resources>

@@ -1,7 +1,10 @@
 package com.example.homeassistantlauncher
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
@@ -11,21 +14,28 @@ import android.webkit.WebStorage
 import android.webkit.WebView
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
-
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.example.homeassistantlauncher.databinding.FragmentSettingsBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class SettingsFragment : Fragment() {
+class SettingsFragment : Fragment(), FragmentOnBackPressed {
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var appSettings: AppSettings
+    private lateinit var urlsAdapter: UrlsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,7 +48,8 @@ class SettingsFragment : Fragment() {
         appSettings = AppSettings(requireContext())
 
         setupSwitchDelaySpinner()
-        loadUrlsIntoEditText()
+        setupUrlsRecyclerView()
+        loadUrlsIntoAdapter()
         setupSaveButton()
         setupClearCookiesButton()
         setupSwipeRefresh()
@@ -77,9 +88,29 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun loadUrlsIntoEditText() {
-        val urlsList = appSettings.getUrls()
-        binding.editTextUrls.setText(urlsList.joinToString("\n"))
+    private fun setupUrlsRecyclerView() {
+        urlsAdapter = UrlsAdapter(
+            onAddNewClicked = {
+                val currentList = urlsAdapter.getUrls().toMutableList()
+                currentList.add("")
+                urlsAdapter.setUrls(currentList)
+            },
+            onRemoveClicked = { position ->
+                val currentList = urlsAdapter.getUrls().toMutableList()
+                if (position < currentList.size) {
+                    currentList.removeAt(position)
+                    urlsAdapter.setUrls(currentList)
+                }
+            }
+        )
+        binding.recyclerViewUrls.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = urlsAdapter
+        }
+    }
+
+    private fun loadUrlsIntoAdapter() {
+        urlsAdapter.setUrls(appSettings.getUrls())
     }
 
     private fun setupSaveButton() {
@@ -87,32 +118,33 @@ class SettingsFragment : Fragment() {
             processAndSaveUrls()
         }
     }
-
     private fun processAndSaveUrls() {
-        val urlsInputString = binding.editTextUrls.text.toString()
-        val linesFromInput = urlsInputString.lines()
+        val urlsFromAdapter = urlsAdapter.getUrls().map { it.trim() }.filter { it.isNotEmpty() }
 
         val validUrlsToSave = mutableListOf<String>()
-        val invalidLinesNumbers = mutableListOf<Int>()
+        val invalidLinesMessages = mutableListOf<String>()
+        val firstOccurrenceIndices = mutableSetOf<String>()
 
-        for ((index, lineContent) in linesFromInput.withIndex()) {
-            val trimmedLine = lineContent.trim()
-            if (trimmedLine.isNotEmpty()) {
-                if (Patterns.WEB_URL.matcher(trimmedLine).matches()) {
-                    validUrlsToSave.add(trimmedLine)
+        urlsFromAdapter.forEachIndexed { index, url ->
+            if (firstOccurrenceIndices.contains(url)) {
+                invalidLinesMessages.add("Line ${index + 1}: ${getString(R.string.duplicate_urls_found)}")
+            } else {
+                if (Patterns.WEB_URL.matcher(url).matches()) {
+                    validUrlsToSave.add(url)
+                    firstOccurrenceIndices.add(url)
                 } else {
-                    invalidLinesNumbers.add(index + 1)
+                    invalidLinesMessages.add("Line ${index + 1}: $url")
                 }
             }
         }
 
-        if (invalidLinesNumbers.isEmpty()) {
+        if (invalidLinesMessages.isEmpty()) {
             appSettings.saveUrls(validUrlsToSave)
             Toast.makeText(requireContext(), R.string.urls_saved_successfully, Toast.LENGTH_SHORT).show()
             restartApp()
         } else {
-            val invalidLineMessage = getString(R.string.invalid_urls_on_lines) + invalidLinesNumbers.joinToString(", ")
-            Toast.makeText(requireContext(), invalidLineMessage, Toast.LENGTH_LONG).show()
+            val errorMessage = getString(R.string.invalid_urls_on_lines) + "\n" + invalidLinesMessages.joinToString("\n")
+            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -155,7 +187,7 @@ class SettingsFragment : Fragment() {
 
     private fun setupSwipeRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
-            loadUrlsIntoEditText()
+            loadUrlsIntoAdapter()
             binding.swipeRefreshLayout.isRefreshing = false
         }
     }
@@ -177,5 +209,117 @@ class SettingsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onBackPressed(): Boolean {
+        return false
+    }
+}
+
+class UrlsAdapter(
+    private val onAddNewClicked: () -> Unit,
+    private val onRemoveClicked: (Int) -> Unit
+) : ListAdapter<String, RecyclerView.ViewHolder>(object : DiffUtil.ItemCallback<String>() {
+    override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+        return false
+    }
+
+    override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+        return oldItem == newItem
+    }
+}) {
+
+    private val urlsList = mutableListOf<String>()
+
+    companion object {
+        private const val VIEW_TYPE_URL = 0
+        private const val VIEW_TYPE_ADD = 1
+    }
+
+    fun setUrls(urls: List<String>) {
+        urlsList.clear()
+        urlsList.addAll(urls)
+        submitList(urlsList.toList())
+    }
+
+    fun getUrls(): List<String> {
+        return urlsList.toList()
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (position < urlsList.size) VIEW_TYPE_URL else VIEW_TYPE_ADD
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return if (viewType == VIEW_TYPE_URL) {
+            val view = inflater.inflate(R.layout.list_item_url, parent, false)
+            UrlViewHolder(view, onRemoveClicked, urlsList)
+        } else {
+            val view = inflater.inflate(R.layout.list_item_add_button, parent, false)
+            AddButtonViewHolder(view, onAddNewClicked)
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is UrlViewHolder) {
+            holder.bind(urlsList[position], position + 1)
+        }
+    }
+
+    override fun getItemCount(): Int {
+        return urlsList.size + 1
+    }
+
+    class UrlViewHolder(
+        itemView: View,
+        private val onRemoveClicked: (Int) -> Unit,
+        private val urlsList: MutableList<String>
+    ) : RecyclerView.ViewHolder(itemView) {
+        private val lineNumberTextView: TextView = itemView.findViewById(R.id.text_view_line_number) // Add this
+        private val editTextUrl: EditText = itemView.findViewById(R.id.edit_text_url_item)
+        private val removeButton: Button = itemView.findViewById(R.id.button_remove_url_item)
+        private var textWatcher: TextWatcher? = null
+
+        @SuppressLint("SetTextI18n")
+        fun bind(url: String, lineNumber: Int) {
+            lineNumberTextView.text = "$lineNumber."
+            textWatcher?.let { editTextUrl.removeTextChangedListener(it) }
+            editTextUrl.setText(url)
+
+            textWatcher = object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    val currentPosition = adapterPosition
+                    if (currentPosition != RecyclerView.NO_POSITION) {
+                        if (currentPosition < urlsList.size) {
+                            urlsList[currentPosition] = s.toString()
+                        }
+                    }
+                }
+            }
+            editTextUrl.addTextChangedListener(textWatcher)
+
+            removeButton.setOnClickListener {
+                val currentPosition = adapterPosition
+                if (currentPosition != RecyclerView.NO_POSITION) {
+                    onRemoveClicked(currentPosition)
+                }
+            }
+        }
+    }
+
+    class AddButtonViewHolder(
+        itemView: View,
+        private val onAddNewClicked: () -> Unit
+    ) : RecyclerView.ViewHolder(itemView) {
+        private val addButton: Button = itemView.findViewById(R.id.button_add_new_url)
+
+        init {
+            addButton.setOnClickListener {
+                onAddNewClicked()
+            }
+        }
     }
 }

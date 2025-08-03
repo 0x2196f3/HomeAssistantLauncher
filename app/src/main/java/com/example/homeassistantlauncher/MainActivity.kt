@@ -35,6 +35,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val previousCrashTime = intent.getLongExtra(BaseApplication.EXTRA_PREVIOUS_CRASH_TIME, 0L)
+        if (previousCrashTime != 0L) {
+            BaseApplication.previousCrashTimeFromIntent = previousCrashTime
+        }
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -56,6 +62,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupViewPager() {
         viewPagerAdapter = ViewPagerAdapter(this)
+        binding.viewPager.offscreenPageLimit = 2
         binding.viewPager.adapter = viewPagerAdapter
         binding.viewPager.setUserInputEnabled(false)
     }
@@ -66,7 +73,7 @@ class MainActivity : AppCompatActivity() {
 
         viewPagerAdapter.addFragment(AppsFragment())
         urls.forEach { url ->
-            viewPagerAdapter.addFragment(TabFragment(url))
+            viewPagerAdapter.addFragment(TabFragment.newInstance(url))
         }
         viewPagerAdapter.addFragment(SettingsFragment())
 
@@ -80,8 +87,19 @@ class MainActivity : AppCompatActivity() {
     private fun setupSystemBackButton() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (binding.viewPager.currentItem > DEFAULT_STARTING_TAB_INDEX) {
-                    binding.viewPager.setCurrentItem(binding.viewPager.currentItem - 1, true)
+                val currentPosition = binding.viewPager.currentItem
+                val currentFragment = viewPagerAdapter.getFragment(currentPosition)
+
+                if (!(currentFragment is FragmentOnBackPressed && currentFragment.onBackPressed())) {
+                    if (viewPagerAdapter.itemCount > DEFAULT_STARTING_TAB_INDEX) {
+                        if (currentPosition != DEFAULT_STARTING_TAB_INDEX) {
+                            binding.viewPager.setCurrentItem(DEFAULT_STARTING_TAB_INDEX, true)
+                        }
+                    } else if (viewPagerAdapter.itemCount > 0) {
+                        if (currentPosition != 0) {
+                            binding.viewPager.setCurrentItem(0, true)
+                        }
+                    }
                 }
             }
         })
@@ -142,5 +160,12 @@ class ViewPagerAdapter(fragmentActivity: FragmentActivity) :
         fragments.add(fragment)
         notifyItemInserted(fragments.size - 1)
     }
-}
 
+    fun getFragment(position: Int): Fragment? {
+        return if (position >= 0 && position < fragments.size) {
+            fragments[position]
+        } else {
+            null
+        }
+    }
+}
