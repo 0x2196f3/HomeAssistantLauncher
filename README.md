@@ -1,29 +1,44 @@
-# HomeAssistantLauncher
+<|channel|>final<|message|># HomeAssistantLauncher
 
-HomeAssistantLauncher is an Android launcher app designed specifically for use on Android tablets. It provides a convenient way to access your Home Assistant control panel through a webview interface, allowing for easy management of your smart home devices.
+**HomeAssistantLauncher** turns your Android tablet into a smart‑home control centre.  
+A single‑page launcher lets you view Home Assistant directly in a WebView while still keeping the rest of your device’s apps accessible.
 
-## Features
+---
 
-- **Webview Integration**: Displays your Home Assistant control panel directly within the app.
-- **Multi-Webpage Support**: Navigate between multiple webpages with ease.
-- **Gesture Navigation**: Use a four-finger swipe from left to right to switch between webpages.
-- **Settings Configuration**: Easily configure the webpages you want to access in the settings menu.
-- **App Access**: Slide to the left to open other installed apps.
+## Key Features
 
-## Screenshots
+| Feature | Description |
+|---------|-------------|
+| **WebView integration** | Loads the Home Assistant control panel inside the launcher. |
+| **Multiple pages** | Add any number of web URLs (e.g. dashboards, pages). |
+| **Four‑finger navigation** | Swipe with four fingers left‑to‑right (or right‑to‑left) to jump between pages. |
+| **App drawer** | The very first page is the launcher’s own “home”, the very last page is an app drawer for all installed apps. |
+| **Settings** | Configure the list of URLs directly from the launcher’s settings screen. |
+| **Swipe‑to‑refresh** | Pull‑down refresh is available on pages. |
 
-![Home Assistant Launcher](img/Home.jpg)
-*Home Assistant Control Panel*
 
-![Settings](img/Settings.jpg)
-*Settings Configuration*
+---
 
 ## Usage
 
-1. **Navigating Webpages**: To switch between webpages, use a four-finger swipe from left to right.
-2. **Configuring Webpages**: Go to the settings menu to add or modify the webpages you want to access.
-3. **Accessing Other Apps**: Slide to the last page on the right to open other applications installed on your device.
+1. **Navigate pages** – Use four fingers to swipe left‑to‑right to switch between pages.  
+2. **Configure URLs** – Open the Settings screen and add or edit the web pages you’d like to see.  
+3. **Access apps** – Swipe to the very last page to open the app drawer.
 
-## Known Issues
+---
 
-- **WebView and SwipeRefreshLayout Conflict**: There is an inherent conflict in touch event handling when a scrollable `WebView` is placed inside a `SwipeRefreshLayout`. This can make the swipe-to-refresh gesture difficult or impossible to trigger reliably when the user's swipe starts on the `WebView`. This is a common challenge in Android development with this component combination and a robust solution is not currently implemented.
+## Known Issue
+
+- **WebView + SwipeRefreshLayout conflict** – The pull‑to‑refresh gesture may not work on a scrollable WebView.
+
+---
+
+## Screenshots
+
+![Home Assistant Control Panel](img/Home.jpg)  
+*Home Assistant Control Panel*
+
+![Settings](img/Settings.jpg)  
+*Settings Page*
+
+---
