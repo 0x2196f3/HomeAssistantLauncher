@@ -1,4 +1,4 @@
-<|channel|>final<|message|># HomeAssistantLauncher
+# HomeAssistantLauncher
 
 **HomeAssistantLauncher** turns your Android tablet into a smart‑home control centre.  
 A single‑page launcher lets you view Home Assistant directly in a WebView while still keeping the rest of your device’s apps accessible.
