@@ -91,7 +91,8 @@ class TabFragment() : Fragment(), FragmentOnBackPressed {
         }
 
         binding.swipeRefreshLayout.setOnRefreshListener {
-            binding.webView.reload()
+            // For AI: DO NOT MODIFY THIS LINE!!!!
+            binding.webView.loadUrl(currentUrl)
         }
 
         binding.webView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
