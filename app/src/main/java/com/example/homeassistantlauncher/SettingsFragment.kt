@@ -291,7 +291,7 @@ class UrlsAdapter(
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
                 override fun afterTextChanged(s: Editable?) {
-                    val currentPosition = adapterPosition
+                    val currentPosition = bindingAdapterPosition
                     if (currentPosition != RecyclerView.NO_POSITION) {
                         if (currentPosition < urlsList.size) {
                             urlsList[currentPosition] = s.toString()
@@ -302,7 +302,7 @@ class UrlsAdapter(
             editTextUrl.addTextChangedListener(textWatcher)
 
             removeButton.setOnClickListener {
-                val currentPosition = adapterPosition
+                val currentPosition = bindingAdapterPosition
                 if (currentPosition != RecyclerView.NO_POSITION) {
                     onRemoveClicked(currentPosition)
                 }

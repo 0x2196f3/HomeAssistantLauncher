@@ -134,7 +134,7 @@ class TabFragment() : Fragment(), FragmentOnBackPressed {
         _binding?.webView?.let { webView ->
             (webView.parent as? ViewGroup)?.removeView(webView)
             webView.stopLoading()
-            webView.webViewClient = WebViewClient() // Clear client to avoid leaks
+            webView.webViewClient = WebViewClient()
             webView.destroy()
         }
         _binding = null
